@@ -1,0 +1,41 @@
+#! /usr/bin/env bash
+#
+# Description: This script will set this database like slave of him master cluster. To this, this
+#
+# Check that this server does not have nginx error file bigger than 500KB.
+
+set -e
+
+if [ "$#" -ne 2 ]; then
+    echo
+    echo "Illegal number of parameters"
+    echo "Usage: $0 <TOPOLOGY_DB_USER> <TOPOLOGY_DB_PASSWORD>"
+    echo
+fi
+
+TOPOLOGY_DB_USER="$1"
+TOPOLOGY_DB_PASSWORD="$2"
+
+LOST_IN_RECOVERY=$(/usr/local/orchestrator/orchestrator -c  which-lost-in-recovery 2>/dev/null)
+
+if [ -n "${LOST_IN_RECOVERY}" ]; then
+    for lost in "${LOST_IN_RECOVERY}"; do
+
+        lost_host=$(echo $lost | cut -d: -f1)
+        lost_port=$(echo $lost | cut -d: -f2)
+
+        CLUSTER=$(echo 'SELECT cluster_name FROM meta.cluster' | mysql -N -h "${lost_host}" -P "${lost_port}" -u "${TOPOLOGY_DB_USER}" -p"${TOPOLOGY_DB_PASSWORD}" 2>/dev/null)
+        MASTER_HOST=$(consul kv get mysql/master/$CLUSTER/hostname)
+        date
+        echo "Reset ${lost} like slave of $MASTER_HOST"
+
+        echo "STOP SLAVE; CHANGE MASTER TO MASTER_HOST=\"$MASTER_HOST\", MASTER_USER='repl', MASTER_PASSWORD='changeme', MASTER_AUTO_POSITION=0; START SLAVE;" | mysql -h "${lost_host}" -P "${lost_port}" -u orchestrator -porch_topology_password 2>/dev/null
+
+        /usr/local/orchestrator/orchestrator -c reset-master-gtid-remove-own-uuid -i "${lost}" -quiet
+        /usr/local/orchestrator/orchestrator -c set-read-only -i "${lost}" -quiet
+        /usr/local/orchestrator/orchestrator -c submit-masters-to-kv-stores -i "${lost}" -quiet
+
+    done
+fi
+
+done
