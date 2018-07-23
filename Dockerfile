@@ -11,6 +11,7 @@ RUN set -ex \
         git \
         go \
         build-base \
+        mysql-client \
     && cd /tmp \
     && { go get -d github.com/github/orchestrator ; : ; } \
     && cd $GOPATH/src/github.com/github/orchestrator \
