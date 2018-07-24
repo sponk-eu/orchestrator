@@ -28,6 +28,10 @@ FROM alpine:3.6
 
 EXPOSE 3000
 
+RUN apk add --update bash
+RUN apk add --update mysql-client
+RUN apk add --update curl
+
 COPY --from=0 /usr/local/orchestrator /usr/local/orchestrator
 #COPY --from=0 /etc/orchestrator.conf.json /etc/orchestrator.conf.json
 
