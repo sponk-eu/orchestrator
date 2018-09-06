@@ -8,10 +8,12 @@ cat <<EOF > /etc/orchestrator.conf.json
 {
     "Debug": true,
     "ListenAddress": ":3000",
+
     "MySQLTopologyUser":                        "${ORC_TOPOLOGY_USER:-orchestrator}",
     "MySQLTopologyPassword":                    "${ORC_TOPOLOGY_PASSWORD:-orchestrator}",
-    "MySQLTopologyUseMutualTLS":                "${ORC_TOPOLOGY_USE_MUTUAL_TLS:-true}",
-    "MySQLTopologySSLSkipVerify":               "${ORC_TOPOLOGY_SSL_SKIP_VERIFY:-true}",
+    "MySQLTopologyUseMutualTLS":                 ${ORC_TOPOLOGY_USE_MUTUAL_TLS:-true},
+    "MySQLTopologySSLSkipVerify":                ${ORC_TOPOLOGY_SSL_SKIP_VERIFY:-true},
+
     "MySQLOrchestratorHost":                    "${ORC_DB_HOST:-db}",
     "MySQLOrchestratorPort":                     ${ORC_DB_PORT:-3306},
     "MySQLOrchestratorDatabase":                "${ORC_DB_NAME:-orchestrator}",
@@ -23,14 +25,14 @@ cat <<EOF > /etc/orchestrator.conf.json
     "MySQLOrchestratorSSLCAFile":               "${ORC_SSL_CA}",
     "MySQLOrchestratorSSLSkipVerify":            ${ORC_SSL_SKIP_VERIFY:-true},
     "MySQLOrchestratorUseMutualTLS":             ${ORC_USE_MUTUAL_TLS:-false},
+
     "DetectClusterAliasQuery":                  "${ORC_DETECT_CLUTER_ALIAS:-SELECT SUBSTRING_INDEX(@@hostname, '.', 1)}",
     "DetectClusterDomainQuery":                 "${ORC_DETECT_CLUTER_DOMAIN}",
     "DetectDataCenterQuery":                    "${ORC_DETECT_DATACENTER}",
     "AutoPseudoGTID":                            ${ORC_AUTO_PSEUDOGTID:-false},
-
-    "MySQLHostnameResolveMethod":                "${ORC_HOSTNAME_RESOLVE_METHOD:-@@hostname}",
-    "ClusterNameToAlias":                        {${ORC_CLUSTER_NAME_TO_ALIAS}},
-    "RecoveryPeriodBlockSeconds":                 ${ORC_RECOVER_PERIOD_BLOCK_SECOND:-3600},
+    "MySQLHostnameResolveMethod":               "${ORC_HOSTNAME_RESOLVE_METHOD:-@@hostname}",
+    "ClusterNameToAlias":                       {${ORC_CLUSTER_NAME_TO_ALIAS}},
+    "RecoveryPeriodBlockSeconds":                ${ORC_RECOVER_PERIOD_BLOCK_SECOND:-3600},
     "RecoverMasterClusterFilters":              [${ORC_RECOVER_MASTER_CLUSTER_FILTER:-"*"}],
     "RecoverIntermediateMasterClusterFilters":  [${ORC_RECOVER_INTERMEDIATE_CLUSTER_FILTER:-"*"}],
     "PostGracefulTakeoverProcesses":            [${ORC_POAT_GRACEFUL_TAKEOVER_PROCESSES:-"echo 'Planned takeover complete' >> /tmp/recovery.log"}],
