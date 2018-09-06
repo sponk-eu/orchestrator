@@ -180,6 +180,11 @@ func (this *Instance) isMaxScale() bool {
 	return strings.Contains(this.Version, "maxscale")
 }
 
+// isNDB check whether this is NDB Cluster (aka MySQL Cluster)
+func (this *Instance) IsNDB() bool {
+	return strings.Contains(this.Version, "-ndb-")
+}
+
 // IsBinlogServer checks whether this is any type of a binlog server (currently only maxscale)
 func (this *Instance) IsBinlogServer() bool {
 	if this.isMaxScale() {
@@ -241,11 +246,6 @@ func (this *Instance) IsReplica() bool {
 // IsMaster makes simple heuristics to decide whether this instance is a master (not replicating from any other server)
 func (this *Instance) IsMaster() bool {
 	return !this.IsReplica()
-}
-
-// IsWritableMaster makes simple heuristics to decide whether this instance is a writable master (not replicating from any other server)
-func (this *Instance) IsWritableMaster() bool {
-	return this.IsMaster() && !this.ReadOnly
 }
 
 // ReplicaRunning returns true when this instance's status is of a replicating replica.

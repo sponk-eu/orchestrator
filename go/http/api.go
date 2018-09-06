@@ -67,6 +67,7 @@ var apiSynonyms = map[string]string{
 	"regroup-slaves-pgtid":       "regroup-replicas-pgtid",
 	"detach-slave":               "detach-replica",
 	"reattach-slave":             "reattach-replica",
+	"detach-slave-master-host":   "detach-replica-master-host",
 	"reattach-slave-master-host": "reattach-replica-master-host",
 	"cluster-osc-slaves":         "cluster-osc-replicas",
 	"start-slave":                "start-replica",
@@ -183,13 +184,17 @@ func (this *HttpAPI) Instance(params martini.Params, r render.Render, req *http.
 // useful for bulk loads of a new set of instances and will not block
 // if the instance is slow to respond or not reachable.
 func (this *HttpAPI) AsyncDiscover(params martini.Params, r render.Render, req *http.Request, user auth.User) {
-	go this.Discover(params, r, req, user)
-
+	if !isAuthorizedForAction(req, user) {
+		Respond(r, &APIResponse{Code: ERROR, Message: "Unauthorized"})
+		return
+	}
 	instanceKey, err := this.getInstanceKey(params["host"], params["port"])
 	if err != nil {
 		Respond(r, &APIResponse{Code: ERROR, Message: err.Error()})
 		return
 	}
+	go this.Discover(params, r, req, user)
+
 	Respond(r, &APIResponse{Code: OK, Message: fmt.Sprintf("Asynchronous discovery initiated for Instance: %+v", instanceKey)})
 }
 
@@ -200,7 +205,6 @@ func (this *HttpAPI) Discover(params martini.Params, r render.Render, req *http.
 		return
 	}
 	instanceKey, err := this.getInstanceKey(params["host"], params["port"])
-
 	if err != nil {
 		Respond(r, &APIResponse{Code: ERROR, Message: err.Error()})
 		return
@@ -211,7 +215,11 @@ func (this *HttpAPI) Discover(params martini.Params, r render.Render, req *http.
 		return
 	}
 
-	go orcraft.PublishCommand("discover", instanceKey)
+	if orcraft.IsRaftEnabled() {
+		orcraft.PublishCommand("discover", instanceKey)
+	} else {
+		logic.DiscoverInstance(instanceKey)
+	}
 
 	Respond(r, &APIResponse{Code: OK, Message: fmt.Sprintf("Instance discovered: %+v", instance.Key), Details: instance})
 }
@@ -628,7 +636,29 @@ func (this *HttpAPI) ReattachReplica(params martini.Params, r render.Render, req
 	Respond(r, &APIResponse{Code: OK, Message: fmt.Sprintf("Replica reattached: %+v", instance.Key), Details: instance})
 }
 
-// ReattachReplicaMasterHost reverts a achReplicaMasterHost command
+// DetachReplicaMasterHost detaches a replica from its master by setting an invalid
+// (yet revertible) host name
+func (this *HttpAPI) DetachReplicaMasterHost(params martini.Params, r render.Render, req *http.Request, user auth.User) {
+	if !isAuthorizedForAction(req, user) {
+		Respond(r, &APIResponse{Code: ERROR, Message: "Unauthorized"})
+		return
+	}
+	instanceKey, err := this.getInstanceKey(params["host"], params["port"])
+
+	if err != nil {
+		Respond(r, &APIResponse{Code: ERROR, Message: err.Error()})
+		return
+	}
+	instance, err := inst.DetachReplicaMasterHost(&instanceKey)
+	if err != nil {
+		Respond(r, &APIResponse{Code: ERROR, Message: err.Error()})
+		return
+	}
+
+	Respond(r, &APIResponse{Code: OK, Message: fmt.Sprintf("Replica detached: %+v", instance.Key), Details: instance})
+}
+
+// ReattachReplicaMasterHost reverts a detachReplicaMasterHost command
 // by resoting the original master hostname in CHANGE MASTER TO
 func (this *HttpAPI) ReattachReplicaMasterHost(params martini.Params, r render.Render, req *http.Request, user auth.User) {
 	if !isAuthorizedForAction(req, user) {
@@ -1704,7 +1734,7 @@ func (this *HttpAPI) ClusterMaster(params martini.Params, r render.Render, req *
 		return
 	}
 
-	masters, err := inst.ReadClusterWriteableMaster(clusterName)
+	masters, err := inst.ReadClusterMaster(clusterName)
 	if err != nil {
 		Respond(r, &APIResponse{Code: ERROR, Message: fmt.Sprintf("%+v", err)})
 		return
@@ -2823,7 +2853,7 @@ func (this *HttpAPI) RegisterCandidate(params martini.Params, r render.Render, r
 		return
 	}
 
-	candidate := inst.NewCandidateDatabaseInstance(&instanceKey, promotionRule)
+	candidate := inst.NewCandidateDatabaseInstance(&instanceKey, promotionRule).WithCurrentTime()
 
 	if orcraft.IsRaftEnabled() {
 		_, err = orcraft.PublishCommand("register-candidate", candidate)
@@ -3280,6 +3310,7 @@ func (this *HttpAPI) RegisterRequests(m *martini.ClassicMartini) {
 	this.registerAPIRequest(m, "reset-slave/:host/:port", this.ResetSlave)
 	this.registerAPIRequest(m, "detach-slave/:host/:port", this.DetachReplica)
 	this.registerAPIRequest(m, "reattach-slave/:host/:port", this.ReattachReplica)
+	this.registerAPIRequest(m, "detach-slave-master-host/:host/:port", this.DetachReplicaMasterHost)
 	this.registerAPIRequest(m, "reattach-slave-master-host/:host/:port", this.ReattachReplicaMasterHost)
 	this.registerAPIRequest(m, "flush-binary-logs/:host/:port", this.FlushBinaryLogs)
 	this.registerAPIRequest(m, "restart-slave-statements/:host/:port", this.RestartSlaveStatements)
