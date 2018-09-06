@@ -37,5 +37,4 @@ COPY --from=0 /usr/local/orchestrator /usr/local/orchestrator
 
 WORKDIR /usr/local/orchestrator
 ADD docker/entrypoint.sh /entrypoint.sh
-ADD docker/usr/local/bin/orchestrator-lost-in-recovery /usr/local/bin/orchestrator-lost-in-recovery
 CMD /entrypoint.sh

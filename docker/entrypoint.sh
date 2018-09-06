@@ -10,6 +10,8 @@ cat <<EOF > /etc/orchestrator.conf.json
     "ListenAddress": ":3000",
     "MySQLTopologyUser":                        "${ORC_TOPOLOGY_USER:-orchestrator}",
     "MySQLTopologyPassword":                    "${ORC_TOPOLOGY_PASSWORD:-orchestrator}",
+    "MySQLTopologyUseMutualTLS":                "${ORC_TOPOLOGY_USE_MUTUAL_TLS:-true}",
+    "MySQLTopologySSLSkipVerify":               "${ORC_TOPOLOGY_SSL_SKIP_VERIFY:-true}",
     "MySQLOrchestratorHost":                    "${ORC_DB_HOST:-db}",
     "MySQLOrchestratorPort":                     ${ORC_DB_PORT:-3306},
     "MySQLOrchestratorDatabase":                "${ORC_DB_NAME:-orchestrator}",
