@@ -36,5 +36,6 @@ COPY --from=0 /usr/local/orchestrator /usr/local/orchestrator
 #COPY --from=0 /etc/orchestrator.conf.json /etc/orchestrator.conf.json
 
 WORKDIR /usr/local/orchestrator
-ADD docker/entrypoint.sh /entrypoint.sh
+ADD docker/setup.sh /entrypoint.sh
+ADD conf/orchestrator-docker.conf.json /etc/orchestrator-docker.conf.json
 CMD /entrypoint.sh

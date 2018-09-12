@@ -1,0 +1,59 @@
+version: '2'
+services:
+  orchestrator:
+    image: sponk/orchestrator:latest
+    environment:
+      DEBUG: false
+      ENABLE_SYS_LOG: false
+      MYSQL_ORCHESTRATOR_HOST: mysql
+      MYSQL_ORCHESTRATOR_PORT: 3306
+      MYSQL_ORCHESTRATOR_DATABASE: orchestrator
+      MYSQL_ORCHESTRATOR_USER: orchestrator
+      MYSQL_ORCHESTRATOR_PASSWORD: orhcestrator_password
+      
+      MYSQL_TOPOLOGY_PASSWORD: orc_client_password
+      MYSQL_TOPOLOGY_USER: orc_client_user
+  
+      DISCOVER_BY_SHOW_SLAVE_HOSTS: true
+      INSTANCE_POOL_SECONDS: 5
+      UNSEEN_INSTANCE_FORGET_HOURS: 240
+      SNAPSHOT_TOPOLOGIES_INTERVAL_HOURS: 0
+      INSTANCE_BULK_OPERATIONS_WAIT_TIMEOUT_SECONDS: 10
+      
+      HOSTNAME_RESOLVED_METHOD: default
+      MYSQL_HOSTNAME_RESOLVE_METHOD: @@hostname
+      SKIP_BINLOG_SERVER_UNRESOLVE_CHECK: true
+      
+      EXPIRY_HOSTNAME_RESOLVES_MINUTES: 60
+      REJECT_HOSTNAME_RESOLVE_PATTERN: ''
+      REASONABLE_REPPLICATION_LAG_SECONDS: 10
+      PROBLEM_IGNORE_HOSTNAME_FILTERS: []
+      
+      VERIFY_REPLICATION_FILTERS: false
+      REASONABLE_MAINTENANCE_REPLICATION_LAG_SECONDS: 20
+      CANDIDATE_INSTANCE_EXPIRE_MIUNUTES: 60
+      AUDIT_LOG_FILE: ''
+      AUDIT_TO_SYS_LOG: false
+      REMOVE_TEXT_FROM_HOSTNAME_DISPLAY: .mydomain.com:3306
+      READ_ONLY: false
+      AUTHENTICATION_METHOD: ''
+      HTTP_AUTH_USER: ''
+      HTTP_AUTH_PASSWORD: ''
+      AUTH_USER_HEADER: ''
+      
+      POWER_AUTH_USERS: |
+        [
+          "*"
+        ]
+      
+      CLUSTER_NAME_TO_ALIAS: |
+        {
+          "127.0.0.1": "test suite"
+        }
+    entrypoint: ./setup.sh
+    stdin_open: true
+    external_links:
+    - global/mysql:mysql
+    tty: true
+    labels:
+      io.rancher.container.pull_image: always
