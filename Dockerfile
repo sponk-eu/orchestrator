@@ -38,4 +38,7 @@ COPY --from=0 /usr/local/orchestrator /usr/local/orchestrator
 WORKDIR /usr/local/orchestrator
 ADD docker/setup.sh /entrypoint.sh
 ADD conf/orchestrator-docker.conf.json /etc/orchestrator-docker.conf.json
+
+RUN chmod 777 /entrypoint.sh
+
 CMD /entrypoint.sh
