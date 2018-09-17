@@ -10,6 +10,7 @@
   "MySQLTopologySSLCAFile": "",
   "MySQLTopologySSLSkipVerify": true,
   "MySQLTopologyUseMutualTLS": $MYSQL_TOPOLOGY_USE_MUTUAL_TLS,
+  "MySQLTopologyUseMixedTLS": $MYSQL_TOPOLOGY_USE_MIXED_TLS,
   "MySQLOrchestratorHost": "$MYSQL_ORCHESTRATOR_HOST",
   "MySQLOrchestratorPort": $MYSQL_ORCHESTRATOR_PORT,
   "MySQLOrchestratorDatabase": "$MYSQL_ORCHESTRATOR_DATABASE",
