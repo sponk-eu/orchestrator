@@ -4,7 +4,7 @@
 CONFIG_FILE=/etc/orchestrator.conf.json
 
 cp /etc/orchestrator-docker.conf.json $CONFIG_FILE
-MYSQL_ORCHESTRATOR_USE_MUTUAL_TLS
+
 sed -i 's/$DEBUG/'"${DEBUG:-false}"'/g' $CONFIG_FILE
 sed -i 's/$ENABLE_SYS_LOG/'"${ENABLE_SYS_LOG:-false}"'/g' $CONFIG_FILE
 sed -i 's/$MYSQL_ORCHESTRATOR_HOST/'"${MYSQL_ORCHESTRATOR_HOST:-mysql}"'/g' $CONFIG_FILE
