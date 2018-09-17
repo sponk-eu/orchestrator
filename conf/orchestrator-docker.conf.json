@@ -20,7 +20,7 @@
   "MySQLOrchestratorSSLCertFile": "",
   "MySQLOrchestratorSSLCAFile": "",
   "MySQLOrchestratorSSLSkipVerify": true,
-  "MySQLOrchestratorUseMutualTLS": MYSQL_ORCHESTRATOR_USE_MUTUAL_TLS,
+  "MySQLOrchestratorUseMutualTLS": $MYSQL_ORCHESTRATOR_USE_MUTUAL_TLS,
   "MySQLConnectTimeoutSeconds": 1,
   "DefaultInstancePort": 3306,
   "DiscoverByShowSlaveHosts": $DISCOVER_BY_SHOW_SLAVE_HOSTS,
